@@ -1,7 +1,8 @@
 <plugins>
-  <plugin id="com.mycompany.phpstorm.plugin"
-          url="https://USERNAME.github.io/REPO/плагін%20PhpStorm.zip"
-          version="1.0.0">
+  <plugin
+    id="com.mycompany.phpstorm.plugin"
+    url="https://dmytro332116.github.io/plugin-PhpStorm/плагін%20PhpStorm.zip"
+    version="1.0.0">
     <name>Team PhpStorm Plugin</name>
     <description>Internal plugin for our team</description>
   </plugin>
