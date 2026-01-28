@@ -1,8 +1,8 @@
 <plugins>
   <plugin
     id="com.splitwise.component.generator"
-    url="https://dmytro332116.github.io/plugin-PhpStorm/component-generator-0.1.1.zip"
-    version="0.1.1">
+    url="https://dmytro332116.github.io/plugin-PhpStorm/component-generator-0.1.2.zip"
+    version="0.1.2">
     <name>Component Generator</name>
     <description>Minimal component generator for PhpStorm.</description>
   </plugin>
