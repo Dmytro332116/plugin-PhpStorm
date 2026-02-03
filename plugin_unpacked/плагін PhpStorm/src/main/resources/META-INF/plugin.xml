@@ -4,24 +4,30 @@
     <vendor>Glyanec</vendor>
 
     <description><![CDATA[
-        <p>Плагін для швидкого створення фронтенд‑компонентів у PhpStorm.</p>
-        <p>Достатньо натиснути <b>Create Component</b> і ввести назву — плагін автоматично:</p>
-        <ul>
-            <li>створює файли <b>.scss</b> та <b>.js</b> для компонента;</li>
-            <li>підключає створений компонент у <b>personal.libraries.yml</b>.</li>
-        </ul>
+    A PhpStorm plugin for fast frontend component generation.
+
+    <p>This plugin allows you to quickly create frontend components directly
+    from PhpStorm. Just click <b>Create Component</b> and enter a name — the plugin will:</p>
+    <ul>
+        <li>generate <b>.scss</b> and <b>.js</b> files for the component;</li>
+        <li>automatically register the component in <b>personal.libraries.yml</b>.</li>
+    </ul>
+
+    <p>Ideal for speeding up development and reducing repetitive boilerplate.</p>
     ]]></description>
 
+
     <change-notes><![CDATA[
-        <h3>0.1.5</h3>
-        <ul>
-            <li>Оновлено опис плагіна українською мовою.</li>
-            <li>Додано іконку плагіна.</li>
-            <li>Оновлено сумісність для PhpStorm 2025.3.</li>
-        </ul>
+    <h3>1.0.6</h3>
+    <ul>
+        <li>Fixed Create Component action to run the generator.</li>
+        <li>Improved user feedback on success and errors.</li>
+    </ul>
     ]]></change-notes>
 
     <depends>com.intellij.modules.platform</depends>
+    <idea-version since-build="233"/>
+
 
     <actions>
         <action id="com.splitwise.component.actions.CreateComponentAction"

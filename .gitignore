@@ -1,0 +1,7 @@
+.DS_Store
+__MACOSX/
+
+plugin_unpacked/**/.DS_Store
+plugin_unpacked/**/.gradle/
+plugin_unpacked/**/.idea/
+plugin_unpacked/**/build/

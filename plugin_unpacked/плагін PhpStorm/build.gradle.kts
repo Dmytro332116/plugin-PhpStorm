@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "com.splitwise.component"
-version = "0.1.5"
+version = "1.0.6"
 
 repositories {
     mavenCentral()
@@ -17,7 +17,7 @@ intellij {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(11)
 }
 
 tasks {
