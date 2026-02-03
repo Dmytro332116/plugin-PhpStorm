@@ -18,6 +18,11 @@
 
 
     <change-notes><![CDATA[
+    <h3>1.0.9</h3>
+    <ul>
+        <li>Prefix JS behaviors with personal_ to avoid conflicts.</li>
+        <li>Add a blank line before new entries in personal.libraries.yml.</li>
+    </ul>
     <h3>1.0.8</h3>
     <ul>
         <li>Find personal.libraries.yml across content roots and components tree.</li>
