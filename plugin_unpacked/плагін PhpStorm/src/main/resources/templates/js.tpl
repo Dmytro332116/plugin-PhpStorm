@@ -1,6 +1,6 @@
 (function ($, Drupal) {
 
-  Drupal.behaviors.{component} = {
+  Drupal.behaviors.personal_{component} = {
     attach: function (context, settings) {
 
     }

@@ -48,8 +48,9 @@ object LibraryUpdater {
 
         val existing = VfsUtil.loadText(libraryFile)
         val entry = buildEntry(componentName, isBlock)
-        val separator = if (existing.endsWith("\n")) "" else "\n"
-        val updated = existing + separator + entry + "\n"
+        val trimmed = existing.trimEnd('\n', '\r')
+        val separator = if (trimmed.isEmpty()) "" else "\n\n"
+        val updated = trimmed + separator + entry + "\n"
         VfsUtil.saveText(libraryFile, updated)
     }
 
