@@ -26,7 +26,7 @@ object ComponentGenerator {
                     throw GeneratorException("Component '$componentName' already exists.")
                 }
 
-                if (LibraryUpdater.libraryExists(baseDir, componentName)) {
+                if (LibraryUpdater.libraryExists(project, baseDir, componentsDir, componentName)) {
                     throw GeneratorException("Library \"$componentName\" already exists in personal.libraries.yml")
                 }
 
@@ -41,7 +41,7 @@ object ComponentGenerator {
                 FileCreator.createScss(componentDir, componentName, isBlock)
                 FileCreator.createJs(componentDir, componentName)
 
-                LibraryUpdater.appendLibraryEntry(baseDir, componentName, isBlock)
+                LibraryUpdater.appendLibraryEntry(project, baseDir, componentsDir, componentName, isBlock)
             }
             Result(true, null)
         } catch (e: GeneratorException) {

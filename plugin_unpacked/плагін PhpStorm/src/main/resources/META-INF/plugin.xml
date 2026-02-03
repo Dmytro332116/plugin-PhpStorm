@@ -18,9 +18,9 @@
 
 
     <change-notes><![CDATA[
-    <h3>1.0.7</h3>
+    <h3>1.0.8</h3>
     <ul>
-        <li>Improved components folder detection across content roots.</li>
+        <li>Find personal.libraries.yml across content roots and components tree.</li>
     </ul>
     ]]></change-notes>
 
