@@ -31,7 +31,7 @@ object ComponentGenerator {
                 }
 
                 val targetDir = if (isBlock) {
-                    componentsDir.findChild("block") ?: componentsDir.createChildDirectory(this, "block")
+                    componentsDir.findChild("blocks") ?: componentsDir.createChildDirectory(this, "blocks")
                 } else {
                     componentsDir
                 }

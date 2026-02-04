@@ -55,7 +55,7 @@ object LibraryUpdater {
     }
 
     private fun buildEntry(componentName: String, isBlock: Boolean): String {
-        val pathPrefix = if (isBlock) "components/block" else "components"
+        val pathPrefix = if (isBlock) "components/blocks" else "components"
         return "$componentName:\n" +
             "  css:\n" +
             "    theme:\n" +
