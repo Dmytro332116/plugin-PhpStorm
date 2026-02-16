@@ -18,6 +18,12 @@
 
 
     <change-notes><![CDATA[
+    <h3>1.0.13</h3>
+    <ul>
+        <li>Polish tools dialog UI with headers and improved layout.</li>
+        <li>Make theme name configurable and persist it per project.</li>
+        <li>Auto-normalize theme and component names.</li>
+    </ul>
     <h3>1.0.12</h3>
     <ul>
         <li>Add Component Generator tools dialog with collapsible sections.</li>

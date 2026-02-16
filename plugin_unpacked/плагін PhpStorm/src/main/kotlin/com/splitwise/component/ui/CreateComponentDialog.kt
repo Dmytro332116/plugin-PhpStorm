@@ -2,18 +2,21 @@ package com.splitwise.component.ui
 
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
+import com.intellij.icons.AllIcons
 import com.intellij.openapi.ui.Messages
 import com.intellij.ui.components.JBCheckBox
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.ui.JBUI
+import com.intellij.util.ui.UIUtil
 import com.splitwise.component.settings.ComponentGeneratorSettings
 import java.awt.BorderLayout
+import java.awt.Font
 import javax.swing.Box
 import javax.swing.BoxLayout
-import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
+import javax.swing.JToggleButton
 import javax.swing.SwingConstants
 import javax.swing.event.DocumentEvent
 import javax.swing.event.DocumentListener
@@ -43,6 +46,7 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         componentNameField.emptyText.text = "Component name"
         themeNameField.emptyText.text = "Theme name (e.g. personal)"
         themeNameField.text = settings.themeName
+        blockCheckBox.toolTipText = "Create component inside components/blocks"
 
         componentNameField.document.addDocumentListener(object : DocumentListener {
             override fun insertUpdate(e: DocumentEvent) = updateOkAction()
@@ -61,10 +65,12 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
     override fun createCenterPanel(): JComponent {
         val root = JPanel()
         root.layout = BoxLayout(root, BoxLayout.Y_AXIS)
-        root.border = JBUI.Borders.empty(8)
+        root.border = JBUI.Borders.empty(12, 12, 10, 12)
 
+        root.add(buildHeader())
+        root.add(Box.createVerticalStrut(10))
         root.add(CollapsibleSection("Create Component", buildCreatePanel(), true))
-        root.add(Box.createVerticalStrut(8))
+        root.add(Box.createVerticalStrut(10))
         root.add(CollapsibleSection("Settings", buildSettingsPanel(), true))
 
         return root
@@ -99,7 +105,7 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
     private fun buildCreatePanel(): JComponent {
         val panel = JPanel()
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
-        panel.border = JBUI.Borders.empty(4, 8)
+        panel.border = JBUI.Borders.empty(6, 12)
 
         val nameRow = JPanel(BorderLayout(8, 0))
         nameRow.add(JBLabel("Component name:"), BorderLayout.WEST)
@@ -115,7 +121,7 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
     private fun buildSettingsPanel(): JComponent {
         val panel = JPanel()
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
-        panel.border = JBUI.Borders.empty(4, 8)
+        panel.border = JBUI.Borders.empty(6, 12)
 
         val themeRow = JPanel(BorderLayout(8, 0))
         themeRow.add(JBLabel("Theme name:"), BorderLayout.WEST)
@@ -127,6 +133,26 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         panel.add(themeRow)
         panel.add(Box.createVerticalStrut(4))
         panel.add(hint)
+
+        return panel
+    }
+
+    private fun buildHeader(): JComponent {
+        val panel = JPanel()
+        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+        panel.border = JBUI.Borders.empty(2, 0, 2, 0)
+
+        val title = JBLabel("Component Generator")
+        val baseFont = JBUI.Fonts.label()
+        title.font = baseFont.deriveFont(Font.BOLD, baseFont.size + 4f)
+
+        val subtitle = JBLabel("Create a component and update {theme}.libraries.yml")
+        subtitle.font = JBUI.Fonts.smallFont()
+        subtitle.foreground = UIUtil.getContextHelpForeground()
+
+        panel.add(title)
+        panel.add(Box.createVerticalStrut(2))
+        panel.add(subtitle)
 
         return panel
     }
@@ -158,7 +184,7 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
     ) : JPanel(BorderLayout()) {
         private val sectionTitle = title
         private var expanded = expandedByDefault
-        private val toggleButton = JButton()
+        private val toggleButton = JToggleButton()
 
         init {
             border = JBUI.Borders.empty(2, 0)
@@ -166,6 +192,7 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
             toggleButton.isContentAreaFilled = false
             toggleButton.isBorderPainted = false
             toggleButton.margin = JBUI.emptyInsets()
+            toggleButton.font = JBUI.Fonts.label().deriveFont(Font.BOLD)
             toggleButton.addActionListener { toggle() }
             updateHeader()
 
@@ -183,10 +210,12 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         }
 
         private fun updateHeader() {
-            toggleButton.text = if (expanded) {
-                "[-] $sectionTitle"
+            toggleButton.text = sectionTitle
+            toggleButton.isSelected = expanded
+            toggleButton.icon = if (expanded) {
+                AllIcons.General.ArrowDown
             } else {
-                "[+] $sectionTitle"
+                AllIcons.General.ArrowRight
             }
         }
     }
