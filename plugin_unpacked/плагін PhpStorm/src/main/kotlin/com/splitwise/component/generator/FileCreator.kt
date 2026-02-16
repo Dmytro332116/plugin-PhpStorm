@@ -11,8 +11,10 @@ object FileCreator {
         VfsUtil.saveText(file, content)
     }
 
-    fun createJs(componentDir: VirtualFile, componentName: String) {
-        val content = loadTemplate("templates/js.tpl").replace("{component}", componentName)
+    fun createJs(componentDir: VirtualFile, componentName: String, themeName: String) {
+        val content = loadTemplate("templates/js.tpl")
+            .replace("{component}", componentName)
+            .replace("{theme}", themeName)
         val file = componentDir.createChildData(this, "$componentName.js")
         VfsUtil.saveText(file, content)
     }

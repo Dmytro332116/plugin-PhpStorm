@@ -7,10 +7,10 @@
     A PhpStorm plugin for fast frontend component generation.
 
     <p>This plugin allows you to quickly create frontend components directly
-    from PhpStorm. Just click <b>Create Component</b> and enter a name — the plugin will:</p>
+    from PhpStorm. Open <b>Component Generator</b> and enter a name — the plugin will:</p>
     <ul>
         <li>generate <b>.scss</b> and <b>.js</b> files for the component;</li>
-        <li>automatically register the component in <b>personal.libraries.yml</b>.</li>
+        <li>automatically register the component in <b>{theme}.libraries.yml</b> (theme configurable).</li>
     </ul>
 
     <p>Ideal for speeding up development and reducing repetitive boilerplate.</p>
@@ -18,6 +18,12 @@
 
 
     <change-notes><![CDATA[
+    <h3>1.0.11</h3>
+    <ul>
+        <li>Add Component Generator tool window with collapsible sections.</li>
+        <li>Make theme name configurable and persist it per project.</li>
+        <li>Auto-normalize theme and component names.</li>
+    </ul>
     <h3>1.0.10</h3>
     <ul>
         <li>Create block components under components/blocks.</li>
@@ -37,12 +43,20 @@
     <depends>com.intellij.modules.platform</depends>
     <idea-version since-build="233"/>
 
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Component Generator"
+                    factoryClass="com.splitwise.component.ui.ComponentToolWindowFactory"
+                    anchor="right"
+                    icon="META-INF/pluginIcon.svg"
+                    canCloseContents="false"/>
+    </extensions>
 
     <actions>
         <action id="com.splitwise.component.actions.CreateComponentAction"
                 class="com.splitwise.component.actions.CreateComponentAction"
-                text="Create Component"
-                description="Create a frontend component with scss/js files">
+                text="Component Generator"
+                description="Open Component Generator"
+                icon="META-INF/pluginIcon.svg">
             <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt shift C"/>
             <keyboard-shortcut keymap="Mac OS X 10.5+" first-keystroke="meta alt shift C"/>
             <add-to-group group-id="ToolsMenu" anchor="last"/>

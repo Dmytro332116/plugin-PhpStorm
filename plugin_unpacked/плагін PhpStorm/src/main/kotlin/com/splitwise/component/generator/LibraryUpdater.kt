@@ -12,10 +12,14 @@ object LibraryUpdater {
         project: Project,
         baseDir: VirtualFile,
         componentsDir: VirtualFile?,
-        componentName: String
+        componentName: String,
+        themeName: String
     ): Boolean {
-        val libraryFile = findLibraryFile(project, baseDir, componentsDir)
-            ?: throw GeneratorException("File 'personal.libraries.yml' not found in project root or content roots.")
+        val libraryFileName = buildLibraryFileName(themeName)
+        val libraryFile = findLibraryFile(project, baseDir, componentsDir, libraryFileName)
+            ?: throw GeneratorException(
+                "File '$libraryFileName' not found in project root or content roots."
+            )
 
         val existing = VfsUtil.loadText(libraryFile)
         return existing.split('\n').any { line ->
@@ -41,10 +45,14 @@ object LibraryUpdater {
         baseDir: VirtualFile,
         componentsDir: VirtualFile?,
         componentName: String,
-        isBlock: Boolean
+        isBlock: Boolean,
+        themeName: String
     ) {
-        val libraryFile = findLibraryFile(project, baseDir, componentsDir)
-            ?: throw GeneratorException("File 'personal.libraries.yml' not found in project root or content roots.")
+        val libraryFileName = buildLibraryFileName(themeName)
+        val libraryFile = findLibraryFile(project, baseDir, componentsDir, libraryFileName)
+            ?: throw GeneratorException(
+                "File '$libraryFileName' not found in project root or content roots."
+            )
 
         val existing = VfsUtil.loadText(libraryFile)
         val entry = buildEntry(componentName, isBlock)
@@ -64,25 +72,34 @@ object LibraryUpdater {
             "    $pathPrefix/$componentName/$componentName.js: {}"
     }
 
+    private fun buildLibraryFileName(themeName: String): String {
+        return if (themeName.endsWith(".libraries.yml")) {
+            themeName
+        } else {
+            "$themeName.libraries.yml"
+        }
+    }
+
     private fun findLibraryFile(
         project: Project,
         baseDir: VirtualFile,
-        componentsDir: VirtualFile?
+        componentsDir: VirtualFile?,
+        libraryFileName: String
     ): VirtualFile? {
-        baseDir.findChild("personal.libraries.yml")?.let { return it }
+        baseDir.findChild(libraryFileName)?.let { return it }
 
         var cursor: VirtualFile? = componentsDir
         while (cursor != null) {
-            cursor.findChild("personal.libraries.yml")?.let { return it }
+            cursor.findChild(libraryFileName)?.let { return it }
             cursor = cursor.parent
         }
 
         val roots = ProjectRootManager.getInstance(project).contentRoots
-        roots.mapNotNull { it.findChild("personal.libraries.yml") }.firstOrNull()?.let { return it }
+        roots.mapNotNull { it.findChild(libraryFileName) }.firstOrNull()?.let { return it }
 
         val indexed = FilenameIndex.getVirtualFilesByName(
             project,
-            "personal.libraries.yml",
+            libraryFileName,
             GlobalSearchScope.projectScope(project)
         )
         return indexed.firstOrNull()

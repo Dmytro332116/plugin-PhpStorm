@@ -9,7 +9,7 @@ import com.intellij.psi.search.FilenameIndex
 import com.intellij.psi.search.GlobalSearchScope
 
 object ComponentGenerator {
-    fun generate(project: Project, componentName: String, isBlock: Boolean): Result {
+    fun generate(project: Project, componentName: String, isBlock: Boolean, themeName: String): Result {
         val basePath = project.basePath ?: return Result(false, "Project base path not found.")
         val baseDir = LocalFileSystem.getInstance().findFileByPath(basePath)
             ?: return Result(false, "Project root not found.")
@@ -26,8 +26,10 @@ object ComponentGenerator {
                     throw GeneratorException("Component '$componentName' already exists.")
                 }
 
-                if (LibraryUpdater.libraryExists(project, baseDir, componentsDir, componentName)) {
-                    throw GeneratorException("Library \"$componentName\" already exists in personal.libraries.yml")
+                if (LibraryUpdater.libraryExists(project, baseDir, componentsDir, componentName, themeName)) {
+                    throw GeneratorException(
+                        "Library \"$componentName\" already exists in ${themeName}.libraries.yml"
+                    )
                 }
 
                 val targetDir = if (isBlock) {
@@ -39,9 +41,16 @@ object ComponentGenerator {
                 val componentDir = targetDir.createChildDirectory(this, componentName)
 
                 FileCreator.createScss(componentDir, componentName, isBlock)
-                FileCreator.createJs(componentDir, componentName)
+                FileCreator.createJs(componentDir, componentName, themeName)
 
-                LibraryUpdater.appendLibraryEntry(project, baseDir, componentsDir, componentName, isBlock)
+                LibraryUpdater.appendLibraryEntry(
+                    project,
+                    baseDir,
+                    componentsDir,
+                    componentName,
+                    isBlock,
+                    themeName
+                )
             }
             Result(true, null)
         } catch (e: GeneratorException) {

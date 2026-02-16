@@ -4,10 +4,9 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.diagnostic.Logger
 import com.intellij.openapi.ui.Messages
-import com.splitwise.component.generator.ComponentGenerator
-import com.splitwise.component.ui.CreateComponentDialog
+import com.intellij.openapi.wm.ToolWindowManager
 
-class CreateComponentAction : AnAction("Create Component") {
+class CreateComponentAction : AnAction("Component Generator") {
     private val logger = Logger.getInstance(CreateComponentAction::class.java)
 
     override fun update(e: AnActionEvent) {
@@ -16,29 +15,17 @@ class CreateComponentAction : AnAction("Create Component") {
 
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.project ?: return
-        val dialog = CreateComponentDialog(project)
-        if (!dialog.showAndGet()) {
-            return
-        }
-
-        val componentName = dialog.componentName.trim()
-        val isBlockComponent = dialog.isBlockComponent
-        logger.info("Create Component dialog OK: name='$componentName', isBlock=$isBlockComponent")
-
-        if (componentName.isEmpty()) {
-            Messages.showErrorDialog(project, "Component name is required.", "Create Component")
-            return
-        }
-
-        val result = ComponentGenerator.generate(project, componentName, isBlockComponent)
-        if (result.success) {
-            Messages.showInfoMessage(project, "Component '$componentName' created.", "Create Component")
-        } else {
+        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Component Generator")
+        if (toolWindow == null) {
             Messages.showErrorDialog(
                 project,
-                result.message ?: "Failed to create component.",
+                "Component Generator tool window is not available.",
                 "Create Component"
             )
+            return
         }
+
+        logger.info("Opening Component Generator tool window")
+        toolWindow.activate(null)
     }
 }
