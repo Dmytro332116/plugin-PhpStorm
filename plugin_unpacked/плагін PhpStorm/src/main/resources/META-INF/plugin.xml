@@ -18,6 +18,12 @@
 
 
     <change-notes><![CDATA[
+    <h3>1.0.12</h3>
+    <ul>
+        <li>Add Component Generator tools dialog with collapsible sections.</li>
+        <li>Make theme name configurable and persist it per project.</li>
+        <li>Auto-normalize theme and component names.</li>
+    </ul>
     <h3>1.0.11</h3>
     <ul>
         <li>Add Component Generator tool window with collapsible sections.</li>
@@ -42,14 +48,6 @@
 
     <depends>com.intellij.modules.platform</depends>
     <idea-version since-build="233"/>
-
-    <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Component Generator"
-                    factoryClass="com.splitwise.component.ui.ComponentToolWindowFactory"
-                    anchor="right"
-                    icon="META-INF/pluginIcon.svg"
-                    canCloseContents="false"/>
-    </extensions>
 
     <actions>
         <action id="com.splitwise.component.actions.CreateComponentAction"
