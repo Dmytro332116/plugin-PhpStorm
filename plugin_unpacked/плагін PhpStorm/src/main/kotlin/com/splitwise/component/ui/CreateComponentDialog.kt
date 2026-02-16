@@ -14,6 +14,7 @@ import java.awt.BorderLayout
 import java.awt.Font
 import javax.swing.Box
 import javax.swing.BoxLayout
+import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JToggleButton
@@ -26,7 +27,14 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
     private val componentNameField = JBTextField()
     private val themeNameField = JBTextField()
     private val blockCheckBox = JBCheckBox("Block component (components/blocks)")
+    private val previewLibraryLabel = JBLabel()
+    private val previewBehaviorLabel = JBLabel()
+    private val previewScssLabel = JBLabel()
+    private val previewJsLabel = JBLabel()
+    private val saveThemeButton = JButton("Save Theme")
+    private val themeStatusLabel = JBLabel()
     private var updatingThemeField = false
+    private var pendingTheme = settings.themeName
     private var normalizedComponent = ""
     private var normalizedTheme = settings.themeName
 
@@ -49,17 +57,23 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         blockCheckBox.toolTipText = "Create component inside components/blocks"
 
         componentNameField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) = updateOkAction()
-            override fun removeUpdate(e: DocumentEvent) = updateOkAction()
-            override fun changedUpdate(e: DocumentEvent) = updateOkAction()
+            override fun insertUpdate(e: DocumentEvent) = onComponentChanged()
+            override fun removeUpdate(e: DocumentEvent) = onComponentChanged()
+            override fun changedUpdate(e: DocumentEvent) = onComponentChanged()
         })
 
         themeNameField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) = persistThemeIfValid()
-            override fun removeUpdate(e: DocumentEvent) = persistThemeIfValid()
-            override fun changedUpdate(e: DocumentEvent) = persistThemeIfValid()
+            override fun insertUpdate(e: DocumentEvent) = onThemeChanged()
+            override fun removeUpdate(e: DocumentEvent) = onThemeChanged()
+            override fun changedUpdate(e: DocumentEvent) = onThemeChanged()
         })
+        blockCheckBox.addActionListener { refreshPreview() }
+        saveThemeButton.addActionListener { onSaveTheme() }
+        themeStatusLabel.font = JBUI.Fonts.smallFont()
+        themeStatusLabel.foreground = UIUtil.getContextHelpForeground()
         updateOkAction()
+        refreshPreview()
+        updateThemeStatus()
     }
 
     override fun createCenterPanel(): JComponent {
@@ -97,6 +111,7 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         }
 
         settings.themeName = themeName
+        pendingTheme = themeName
         normalizedComponent = componentName
         normalizedTheme = themeName
         super.doOKAction()
@@ -129,10 +144,21 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
 
         val hint = JBLabel("Used for {theme}.libraries.yml and Drupal.behaviors.{theme}_*")
         hint.font = JBUI.Fonts.smallFont()
+        hint.foreground = UIUtil.getContextHelpForeground()
+
+        val actionsRow = JPanel(BorderLayout(8, 0))
+        actionsRow.add(saveThemeButton, BorderLayout.WEST)
+        actionsRow.add(themeStatusLabel, BorderLayout.CENTER)
+
+        val previewPanel = buildPreviewPanel()
 
         panel.add(themeRow)
         panel.add(Box.createVerticalStrut(4))
         panel.add(hint)
+        panel.add(Box.createVerticalStrut(8))
+        panel.add(actionsRow)
+        panel.add(Box.createVerticalStrut(8))
+        panel.add(previewPanel)
 
         return panel
     }
@@ -142,6 +168,13 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
         panel.border = JBUI.Borders.empty(2, 0, 2, 0)
 
+        val row = JPanel(BorderLayout(8, 0))
+        val icon = JBLabel(AllIcons.Nodes.Plugin)
+        row.add(icon, BorderLayout.WEST)
+
+        val texts = JPanel()
+        texts.layout = BoxLayout(texts, BoxLayout.Y_AXIS)
+
         val title = JBLabel("Component Generator")
         val baseFont = JBUI.Fonts.label()
         title.font = baseFont.deriveFont(Font.BOLD, baseFont.size + 4f)
@@ -150,9 +183,39 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         subtitle.font = JBUI.Fonts.smallFont()
         subtitle.foreground = UIUtil.getContextHelpForeground()
 
+        texts.add(title)
+        texts.add(Box.createVerticalStrut(2))
+        texts.add(subtitle)
+
+        row.add(texts, BorderLayout.CENTER)
+        panel.add(row)
+
+        return panel
+    }
+
+    private fun buildPreviewPanel(): JComponent {
+        val panel = JPanel()
+        panel.layout = BoxLayout(panel, BoxLayout.Y_AXIS)
+        panel.border = JBUI.Borders.empty(4, 0, 0, 0)
+
+        val title = JBLabel("Preview")
+        title.font = JBUI.Fonts.label().deriveFont(Font.BOLD)
+
+        val labels = listOf(previewLibraryLabel, previewBehaviorLabel, previewScssLabel, previewJsLabel)
+        for (label in labels) {
+            label.font = JBUI.Fonts.smallFont()
+            label.foreground = UIUtil.getContextHelpForeground()
+        }
+
         panel.add(title)
+        panel.add(Box.createVerticalStrut(4))
+        panel.add(previewLibraryLabel)
         panel.add(Box.createVerticalStrut(2))
-        panel.add(subtitle)
+        panel.add(previewBehaviorLabel)
+        panel.add(Box.createVerticalStrut(2))
+        panel.add(previewScssLabel)
+        panel.add(Box.createVerticalStrut(2))
+        panel.add(previewJsLabel)
 
         return panel
     }
@@ -161,20 +224,58 @@ class CreateComponentDialog(project: Project) : DialogWrapper(project) {
         isOKActionEnabled = componentNameField.text.trim().isNotEmpty()
     }
 
-    private fun persistThemeIfValid() {
+    private fun onComponentChanged() {
+        updateOkAction()
+        refreshPreview()
+    }
+
+    private fun onThemeChanged() {
         if (updatingThemeField) {
             return
         }
         val normalized = ComponentGeneratorSettings.normalizeThemeName(themeNameField.text)
-        if (normalized.isEmpty()) {
-            return
-        }
-        if (themeNameField.text.trim() != normalized) {
+        if (normalized.isNotEmpty() && themeNameField.text.trim() != normalized) {
             updatingThemeField = true
             themeNameField.text = normalized
             updatingThemeField = false
         }
-        settings.themeName = normalized
+        pendingTheme = normalized
+        refreshPreview()
+        updateThemeStatus()
+    }
+
+    private fun onSaveTheme() {
+        val themeName = ComponentGeneratorSettings.normalizeThemeName(themeNameField.text)
+        if (themeName.isEmpty()) {
+            Messages.showErrorDialog(themeNameField, "Theme name is required.", "Save Theme")
+            return
+        }
+        if (themeNameField.text.trim() != themeName) {
+            themeNameField.text = themeName
+        }
+        settings.themeName = themeName
+        pendingTheme = themeName
+        normalizedTheme = themeName
+        updateThemeStatus()
+        refreshPreview()
+    }
+
+    private fun updateThemeStatus() {
+        val isSaved = pendingTheme.isNotEmpty() && pendingTheme == settings.themeName
+        saveThemeButton.isEnabled = !isSaved && pendingTheme.isNotEmpty()
+        themeStatusLabel.text = if (isSaved) "Saved" else "Not saved"
+    }
+
+    private fun refreshPreview() {
+        val component = ComponentGeneratorSettings.normalizeComponentName(componentNameField.text)
+            .ifEmpty { "<component>" }
+        val theme = pendingTheme.ifEmpty { "<theme>" }
+        val basePath = if (blockCheckBox.isSelected) "components/blocks" else "components"
+
+        previewLibraryLabel.text = "Libraries: $theme.libraries.yml"
+        previewBehaviorLabel.text = "Behavior: Drupal.behaviors.${theme}_$component"
+        previewScssLabel.text = "SCSS: $basePath/$component/$component.scss"
+        previewJsLabel.text = "JS: $basePath/$component/$component.js"
     }
 
     private class CollapsibleSection(
